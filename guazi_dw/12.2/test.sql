@@ -10,3 +10,7 @@ select *
  from hive_source.bi_kanban_table_visit_stat_info
  where busi_time='${date_y_m_d}'
  ) b on a.busi_time=b.busi_time
+
+
+
+ test
