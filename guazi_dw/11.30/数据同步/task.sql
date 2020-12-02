@@ -19,3 +19,6 @@ qr_config      ok
 下午注意运行状态：
 znkf_rule_plateform.clue_filter_result  zhipeng
 znkf_rule_plateform.clue_node_rule      zhipeng
+
+
+-- bbbb
