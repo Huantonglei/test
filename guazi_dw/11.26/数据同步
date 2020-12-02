@@ -1,0 +1,6 @@
+mysql_dealer_tool:dealer_tool.feedback_img ->guazi_dw_dwb.dwb_dealer_tool_feedback_img_day
+                  dealer_tool.feedback ->guazi_dw_dwb.dwb_dealer_tool_feedback_day
+
+mysql_customer:customer.customer_qr_code -> guazi_dw_dwb.dwb_customer_customer_qr_code_day
+
+mysql_scmp_tms_handover:ho_bill_detail -> dwb_scmp_tms_handover_ho_bill_detail_day_online

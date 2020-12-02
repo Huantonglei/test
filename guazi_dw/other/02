@@ -1,0 +1,170 @@
+set hive.execution.engine=tez;
+set hive.exec.reducers.bytes.per.reducer=512000000;
+set hive.exec.parallel=true;
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+from (
+select *
+,concat(id) as join_key -- 联合主键，需传参
+from tmp.dwb_sale_appoint_task_chain_day
+where end_date > date_add('{day_exec}',-1)
+and start_date <= date_add('{day_exec}',-1)
+) chain
+full join (
+select *
+from (
+select *
+,concat(id) as join_key
+,row_number() over(partition by concat(id) order by updated_at desc) as rn
+from guazi_dw_dwb.dwb_sale_appoint_task_day
+where dt = '{day_exec}'
+and updated_at >= '{day_exec}'
+) ods_tmp
+where ods_tmp.rn = 1
+) ods
+on chain.join_key = ods.join_key
+
+insert overwrite table tmp.dwb_sale_appoint_task_chain_day partition(end_date = '9999-12-31',dp = 'active')
+select case when ods.id is not null then ods.id when chain.id is not null and ods.id is null then chain.id end
+,case when ods.id is not null then ods.car_source_id when chain.id is not null and ods.id is null then chain.car_source_id end
+,case when ods.id is not null then ods.appoint_address when chain.id is not null and ods.id is null then chain.appoint_address end
+,case when ods.id is not null then ods.appoint_time when chain.id is not null and ods.id is null then chain.appoint_time end
+,case when ods.id is not null then ods.appoint_status when chain.id is not null and ods.id is null then chain.appoint_status end
+,case when ods.id is not null then ods.appoint_fail_reason when chain.id is not null and ods.id is null then chain.appoint_fail_reason end
+,case when ods.id is not null then ods.appoint_person when chain.id is not null and ods.id is null then chain.appoint_person end
+,case when ods.id is not null then ods.remark when chain.id is not null and ods.id is null then chain.remark end
+,case when ods.id is not null then ods.complated_remark when chain.id is not null and ods.id is null then chain.complated_remark end
+,case when ods.id is not null then ods.create_time when chain.id is not null and ods.id is null then chain.create_time end
+,case when ods.id is not null then ods.operator when chain.id is not null and ods.id is null then chain.operator end
+,case when ods.id is not null then ods.buyer_name when chain.id is not null and ods.id is null then chain.buyer_name end
+,case when ods.id is not null then ods.buyer_phone when chain.id is not null and ods.id is null then chain.buyer_phone end
+,case when ods.id is not null then ods.buyer_phone_encode when chain.id is not null and ods.id is null then chain.buyer_phone_encode end
+,case when ods.id is not null then ods.expected_time when chain.id is not null and ods.id is null then chain.expected_time end
+,case when ods.id is not null then ods.original_expected_time when chain.id is not null and ods.id is null then chain.original_expected_time end
+,case when ods.id is not null then ods.update_time when chain.id is not null and ods.id is null then chain.update_time end
+,case when ods.id is not null then ods.status_update_time when chain.id is not null and ods.id is null then chain.status_update_time end
+,case when ods.id is not null then ods.next_contact_time when chain.id is not null and ods.id is null then chain.next_contact_time end
+,case when ods.id is not null then ods.task_see_time when chain.id is not null and ods.id is null then chain.task_see_time end
+,case when ods.id is not null then ods.city_id when chain.id is not null and ods.id is null then chain.city_id end
+,case when ods.id is not null then ods.clue_id when chain.id is not null and ods.id is null then chain.clue_id end
+,case when ods.id is not null then ods.district_id when chain.id is not null and ods.id is null then chain.district_id end
+,case when ods.id is not null then ods.minor_category_name when chain.id is not null and ods.id is null then chain.minor_category_name end
+,case when ods.id is not null then ods.minor_category_url when chain.id is not null and ods.id is null then chain.minor_category_url end
+,case when ods.id is not null then ods.tag_name when chain.id is not null and ods.id is null then chain.tag_name end
+,case when ods.id is not null then ods.tag_url when chain.id is not null and ods.id is null then chain.tag_url end
+,case when ods.id is not null then ods.car_id when chain.id is not null and ods.id is null then chain.car_id end
+,case when ods.id is not null then ods.bid_price when chain.id is not null and ods.id is null then chain.bid_price end
+,case when ods.id is not null then ods.process_status when chain.id is not null and ods.id is null then chain.process_status end
+,case when ods.id is not null then ods.source_type when chain.id is not null and ods.id is null then chain.source_type end
+,case when ods.id is not null then ods.is_real_see when chain.id is not null and ods.id is null then chain.is_real_see end
+,case when ods.id is not null then ods.real_see_times when chain.id is not null and ods.id is null then chain.real_see_times end
+,case when ods.id is not null then ods.is_auto_dispatch when chain.id is not null and ods.id is null then chain.is_auto_dispatch end
+,case when ods.id is not null then ods.clue_source_type when chain.id is not null and ods.id is null then chain.clue_source_type end
+,case when ods.id is not null then ods.task_level when chain.id is not null and ods.id is null then chain.task_level end
+,case when ods.id is not null then ods.pay_type when chain.id is not null and ods.id is null then chain.pay_type end
+,case when ods.id is not null then ods.buy_standard when chain.id is not null and ods.id is null then chain.buy_standard end
+,case when ods.id is not null then ods.cust_pos when chain.id is not null and ods.id is null then chain.cust_pos end
+,case when ods.id is not null then ods.ser_fee when chain.id is not null and ods.id is null then chain.ser_fee end
+,case when ods.id is not null then ods.seller_price when chain.id is not null and ods.id is null then chain.seller_price end
+,case when ods.id is not null then ods.defrost_time when chain.id is not null and ods.id is null then chain.defrost_time end
+,case when ods.id is not null then ods.platform when chain.id is not null and ods.id is null then chain.platform end
+,case when ods.id is not null then ods.customer_id when chain.id is not null and ods.id is null then chain.customer_id end
+,case when ods.id is not null then ods.refuse_reason when chain.id is not null and ods.id is null then chain.refuse_reason end
+,case when ods.id is not null then ods.record_modify_time when chain.id is not null and ods.id is null then chain.record_modify_time end
+,case when ods.id is not null then ods.order_id when chain.id is not null and ods.id is null then chain.order_id end
+,case when ods.id is not null then ods.relation_id when chain.id is not null and ods.id is null then chain.relation_id end
+,case when ods.id is not null then ods.tianrun_call_id when chain.id is not null and ods.id is null then chain.tianrun_call_id end
+,case when ods.id is not null then ods.longitude when chain.id is not null and ods.id is null then chain.longitude end
+,case when ods.id is not null then ods.latitude when chain.id is not null and ods.id is null then chain.latitude end
+,case when ods.id is not null then ods.customer_service_id when chain.id is not null and ods.id is null then chain.customer_service_id end
+,case when ods.id is not null then ods.is_both_appoint when chain.id is not null and ods.id is null then chain.is_both_appoint end
+,case when ods.id is not null then ods.overdue_at when chain.id is not null and ods.id is null then chain.overdue_at end
+,case when ods.id is not null then ods.wait_see_status when chain.id is not null and ods.id is null then chain.wait_see_status end
+,case when ods.id is not null then ods.created_at when chain.id is not null and ods.id is null then chain.created_at end
+,case when ods.id is not null then ods.updated_at when chain.id is not null and ods.id is null then chain.updated_at end
+,case when ods.id is not null then ods.visit_status when chain.id is not null and ods.id is null then chain.visit_status end
+,case when ods.id is not null then ods.task_finance_status when chain.id is not null and ods.id is null then chain.task_finance_status end
+,case when ods.id is not null then ods.task_loan_amount when chain.id is not null and ods.id is null then chain.task_loan_amount end
+,case when ods.id is not null then ods.is_loan_must_see when chain.id is not null and ods.id is null then chain.is_loan_must_see end
+,case when ods.id is not null then ods.is_consigned when chain.id is not null and ods.id is null then chain.is_consigned end
+,case when ods.id is not null then ods.recommender when chain.id is not null and ods.id is null then chain.recommender end
+,case when ods.id is not null then ods.gcid when chain.id is not null and ods.id is null then chain.gcid end
+,case when ods.id is not null then ods.dispatch_time when chain.id is not null and ods.id is null then chain.dispatch_time end
+,case when ods.id is not null then ods.order_type when chain.id is not null and ods.id is null then chain.order_type end
+,case when ods.id is not null then ods.is_visit when chain.id is not null and ods.id is null then chain.is_visit end
+,case when ods.id is not null then '{day_exec}' when chain.id is not null and ods.id is null then chain.start_date end
+where (ods.id is not null)
+or (chain.id is not null and ods.id is null)
+
+insert overwrite table tmp.dwb_sale_appoint_task_chain_day partition(end_date = '{day_exec}',dp = 'expired')
+select
+chain.id
+,chain.car_source_id
+,chain.appoint_address
+,chain.appoint_time
+,chain.appoint_status
+,chain.appoint_fail_reason
+,chain.appoint_person
+,chain.remark
+,chain.complated_remark
+,chain.create_time
+,chain.operator
+,chain.buyer_name
+,chain.buyer_phone
+,chain.buyer_phone_encode
+,chain.expected_time
+,chain.original_expected_time
+,chain.update_time
+,chain.status_update_time
+,chain.next_contact_time
+,chain.task_see_time
+,chain.city_id
+,chain.clue_id
+,chain.district_id
+,chain.minor_category_name
+,chain.minor_category_url
+,chain.tag_name
+,chain.tag_url
+,chain.car_id
+,chain.bid_price
+,chain.process_status
+,chain.source_type
+,chain.is_real_see
+,chain.real_see_times
+,chain.is_auto_dispatch
+,chain.clue_source_type
+,chain.task_level
+,chain.pay_type
+,chain.buy_standard
+,chain.cust_pos
+,chain.ser_fee
+,chain.seller_price
+,chain.defrost_time
+,chain.platform
+,chain.customer_id
+,chain.refuse_reason
+,chain.record_modify_time
+,chain.order_id
+,chain.relation_id
+,chain.tianrun_call_id
+,chain.longitude
+,chain.latitude
+,chain.customer_service_id
+,chain.is_both_appoint
+,chain.overdue_at
+,chain.wait_see_status
+,chain.created_at
+,chain.updated_at
+,chain.visit_status
+,chain.task_finance_status
+,chain.task_loan_amount
+,chain.is_loan_must_see
+,chain.is_consigned
+,chain.recommender
+,chain.gcid
+,chain.dispatch_time
+,chain.order_type
+,chain.is_visit
+,chain.start_date
+where chain.id is not null and ods.id is not null
